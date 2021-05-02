@@ -1,0 +1,10 @@
+{
+  "name": "com.utj.mathutility",
+  "displayName": "MathUgtility",
+  "version": "0.0.1",
+  "unity": "2020.3",
+  "description": "MathUtilityLib.",
+  "dependencies": {
+    "com.unity.mathematics": "1.2.1"
+  }
+}
