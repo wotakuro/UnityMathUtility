@@ -33,7 +33,33 @@ namespace UTJ
             float param = math.mul(plane.xyz, point) + plane.w;
             return IsNearEqualZero(param); ;
         }
-        
+
+        public static float4 RayCast(float3 origin, float3 dir, float3 p1, float3 p2, float3 p3)
+        {
+            var edge1 = p2 - p1;
+            var edge2 = p3 - p1;
+            var det = math.determinant(new float3x3(edge1, edge2, -dir));
+            if (det <= 0)
+            {
+                return new float4(float.NaN, float.NaN, float.NaN, float.NaN);
+            }
+            var toP1 = origin - p1;
+
+            var u = math.determinant(new float3x3(toP1, edge2, -dir)) / det;
+
+            if ((u >= 0) && (u <= 1))
+            {
+                var v = math.determinant(new float3x3(edge1, toP1, -dir)) / det;
+                if ((v >= 0) && (u + v <= 1))
+                {
+                    var t = math.determinant(new float3x3(edge1, edge2, toP1)) / det;
+                    var pos = origin + dir * t;
+                    return new float4(pos.xyz, t);
+                }
+            }
+            return new float4(float.NaN, float.NaN, float.NaN, float.NaN);
+        }
+
         // 平面と直線の交差点を出します
         // 交わらないなら Nanを返します
         // xyzに座標が、dirがnormalizedされているなら wには距離が格納されます
@@ -64,22 +90,16 @@ namespace UTJ
         }
 
 
+
         // 平面上にある前提で…
         // あるポイントが三角形の内部にあるかチェックします
-        public static bool IsInPolygon(float3 src,float3 p1,float3 p2,float3 p3)
+        public static bool IsInPolygonXZ(float3 src, float3 p1, float3 p2, float3 p3)
         {
-            float3 c1 = math.cross(p3 - p1, p1 - src);
-            float3 c2 = math.cross(p1 - p2, p2 - src);
-            if (!IsSameDirection(c1, c2))
-            {
-                return false;
-            }
-            float3 c3 = math.cross(p2 - p3, p3 - src);
-            if (!IsSameDirection(c2, c3))
-            {
-                return false;
-            }
-
+            float2 src_2d = new float2(src.x, src.z);
+            float2 p1_2d = new float2(p1.x, p1.z);
+            float2 p2_2d = new float2(p2.x, p2.z);
+            float2 p3_2d = new float2(p3.x, p3.z);
+            
             return true;
         }
 
@@ -143,5 +163,6 @@ namespace UTJ
         {
             return (-NearCheck < param && param < NearCheck);
         }
+
     }
 }
